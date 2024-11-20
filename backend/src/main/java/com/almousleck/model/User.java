@@ -32,4 +32,9 @@ public class User extends BaseEntity{
     private String location;
     private String profilePicture;
     private Boolean profileCompleted = false;
+
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }
