@@ -16,12 +16,11 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService {
+public class AuthService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final JsonWebToken jsonWebToken;
     private final Encoder encoder;
-    private final int durationInMinutes = 1;
 
     public AuthResponseBody register(AuthRequestBody request) {
         User user = userRepository.save(new User(request.getEmail(),
@@ -29,6 +28,7 @@ public class UserService {
         String emailVerificationToken = generateEmailVerificationToken();
         String hashedToken = encoder.encode(emailVerificationToken);
         user.setEmailVerificationToken(hashedToken);
+        int durationInMinutes = 1;
         user.setEmailVerificationTokenExpiryDate(LocalDateTime.now().plusMinutes(durationInMinutes));
 
         userRepository.save(user);
@@ -46,6 +46,15 @@ public class UserService {
         }
         String authenticationToken = jsonWebToken.generateToken(request.getEmail());
         return new AuthResponseBody(authenticationToken, "User registered success!");
+    }
+
+    public AuthResponseBody login(AuthRequestBody request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found: " + request.getEmail()));
+        if (!encoder.matches(request.getPassword(), user.getPassword()))
+            throw new IllegalArgumentException("Invalid credentials");
+        String token = jsonWebToken.generateToken(request.getEmail());
+        return new AuthResponseBody(token, "Authenticated");
     }
     public static String generateEmailVerificationToken() {
         SecureRandom random = new SecureRandom();

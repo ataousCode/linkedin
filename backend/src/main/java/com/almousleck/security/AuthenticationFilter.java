@@ -1,7 +1,7 @@
 package com.almousleck.security;
 
 import com.almousleck.model.User;
-import com.almousleck.service.UserService;
+import com.almousleck.service.AuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpFilter;
@@ -22,10 +22,10 @@ public class AuthenticationFilter extends HttpFilter {
             "/api/v1/authentication/reset-password"
     );
 
-    private final UserService userService;
+    private final AuthService userService;
     private final JsonWebToken jsonWebToken;
 
-    public AuthenticationFilter(UserService userService,
+    public AuthenticationFilter(AuthService userService,
                                 JsonWebToken jsonWebToken) {
         this.userService = userService;
         this.jsonWebToken = jsonWebToken;
@@ -50,15 +50,13 @@ public class AuthenticationFilter extends HttpFilter {
 
         try {
             String authorization = request.getHeader("Authorization");
-            if (authorization == null || !authorization.startsWith("Bearer ")) {
+            if (authorization == null || !authorization.startsWith("Bearer "))
                 throw new ServletException("Token missing.");
-            }
 
             String token = authorization.substring(7);
 
-            if (jsonWebToken.isTokenExpired(token)) {
+            if (jsonWebToken.isTokenExpired(token))
                 throw new ServletException("Invalid token");
-            }
 
             String email = jsonWebToken.getEmailFromToken(token);
             User user = userService.getUser(email);
