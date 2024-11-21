@@ -6,6 +6,9 @@ import com.almousleck.model.User;
 import com.almousleck.repository.UserRepository;
 import com.almousleck.security.Encoder;
 import com.almousleck.security.JsonWebToken;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,10 @@ public class AuthService {
     private final JsonWebToken jsonWebToken;
     private final Encoder encoder;
     private final int durationInMinutes = 1;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
 
     public AuthResponseBody register(AuthRequestBody request) {
         User user = userRepository.save(new User(request.getEmail(),
@@ -109,4 +116,27 @@ public class AuthService {
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new RuntimeException("User not found"));
     }
+
+    public User updateUserProfile(Long userId, String firstName, String lastName,
+                                  String company, String position, String location) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        if (firstName != null) user.setFirstName(firstName);
+        if (lastName != null) user.setLastName(lastName);
+        if (company != null) user.setCompany(company);
+        if (position != null) user.setPosition(position);
+        if (location != null) user.setLocation(location);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = entityManager.find(User.class, userId);
+        if (user != null) {
+            entityManager.createNativeQuery("DELETE FROM posts_likes WHERE user_id = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            entityManager.remove(user);
+        }
+    }
+
 }

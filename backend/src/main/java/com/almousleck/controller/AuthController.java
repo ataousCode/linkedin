@@ -6,7 +6,9 @@ import com.almousleck.model.User;
 import com.almousleck.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/authentication")
@@ -34,6 +36,35 @@ public class AuthController {
     public String sendEmailVerificationToken(@RequestAttribute("authenticatedUser") User user) {
         authService.sendEmailVerificationToken(user.getEmail());
         return "Email verification token sent successfully.";
+    }
+
+
+    @PutMapping("/profile/{id}")
+    public User updateUserProfile(
+            @RequestAttribute("authenticatedUser") User user,
+            @PathVariable Long id,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String company,
+            @RequestParam(required = false) String position,
+            @RequestParam(required = false) String location) {
+
+        if (!user.getId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have permission to update this profile.");
+        }
+
+        return authService.updateUserProfile(id, firstName, lastName, company, position, location);
+    }
+
+    @DeleteMapping("/delete")
+    public String deleteUser(@RequestAttribute("authenticatedUser") User user) {
+        authService.deleteUser(user.getId());
+        return "User deleted successfully.";
+    }
+
+    @GetMapping("/user")
+    public User getUser(@RequestAttribute("authenticatedUser") User user) {
+        return user;
     }
 
 
