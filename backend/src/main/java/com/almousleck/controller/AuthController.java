@@ -2,13 +2,11 @@ package com.almousleck.controller;
 
 import com.almousleck.dto.AuthRequestBody;
 import com.almousleck.dto.AuthResponseBody;
+import com.almousleck.model.User;
 import com.almousleck.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/authentication")
@@ -25,4 +23,29 @@ public class AuthController {
     public AuthResponseBody login(@Valid @RequestBody AuthRequestBody request) {
         return authService.login(request);
     }
+
+    @PutMapping("/validate-email-verification-token")
+    public String verifyEmail(@RequestParam String token, @RequestAttribute("authenticatedUser") User user) {
+        authService.validateEmailVerificationToken(token, user.getEmail());
+        return "Email verification successful";
+    }
+
+    @GetMapping("/send-email-verification-token")
+    public String sendEmailVerificationToken(@RequestAttribute("authenticatedUser") User user) {
+        authService.sendEmailVerificationToken(user.getEmail());
+        return "Email verification token sent successfully.";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

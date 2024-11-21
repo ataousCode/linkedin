@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class AuthService {
     private final EmailService emailService;
     private final JsonWebToken jsonWebToken;
     private final Encoder encoder;
+    private final int durationInMinutes = 1;
 
     public AuthResponseBody register(AuthRequestBody request) {
         User user = userRepository.save(new User(request.getEmail(),
@@ -28,7 +30,6 @@ public class AuthService {
         String emailVerificationToken = generateEmailVerificationToken();
         String hashedToken = encoder.encode(emailVerificationToken);
         user.setEmailVerificationToken(hashedToken);
-        int durationInMinutes = 1;
         user.setEmailVerificationTokenExpiryDate(LocalDateTime.now().plusMinutes(durationInMinutes));
 
         userRepository.save(user);
@@ -63,6 +64,45 @@ public class AuthService {
             builder.append(random.nextInt(10));
         }
         return builder.toString();
+    }
+
+    public void sendEmailVerificationToken(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent() && !user.get().getEmailVerified()) {
+            String emailVerificationToken = generateEmailVerificationToken();
+            String hashedToken = encoder.encode(emailVerificationToken);
+            user.get().setEmailVerificationToken(hashedToken);
+            user.get().setEmailVerificationTokenExpiryDate(LocalDateTime.now()
+                    .plusMinutes(durationInMinutes));
+            userRepository.save(user.get());
+            String subject = "Email Verification";
+            String body = String.format("Only one step to take full advantage of LinkedIn.\n\n"
+                            + "Enter this code to verify your email: " + "%s\n\n" + "The code will expire in " + "%s" + " minutes.",
+                    emailVerificationToken, durationInMinutes);
+            try {
+                emailService.sendEmail(email, subject, body);
+            }catch (Exception ex) {
+                log.info("Error while sending email: {}", ex.getMessage());
+            }
+        } else {
+            throw new RuntimeException("User not found or already verified");
+        }
+    }
+
+    public void validateEmailVerificationToken(String token, String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent() && encoder.matches(token, user.get().getEmailVerificationToken())
+                && !user.get().getEmailVerificationTokenExpiryDate().isBefore(LocalDateTime.now())) {
+            user.get().setEmailVerified(true);
+            user.get().setEmailVerificationToken(null);
+            user.get().setEmailVerificationTokenExpiryDate(null);
+            userRepository.save(user.get());
+        } else if (user.isPresent() && encoder.matches(token, user.get().getEmailVerificationToken())
+                && user.get().getEmailVerificationTokenExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Email verification token expired.");
+        } else {
+            throw new IllegalArgumentException("Email verification token failed.");
+        }
     }
 
     public User getUser(String email) {

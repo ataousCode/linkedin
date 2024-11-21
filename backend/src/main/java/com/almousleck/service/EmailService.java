@@ -21,9 +21,10 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
         helper.setFrom("non-reply@almousleck.google.com", "LinkedIn Java Clone");
-        helper.setText(email);
+        helper.setTo(email);
+
         helper.setSubject(subject);
-        helper.setText(content);
+        helper.setText(content, true);
 
         javaMailSender.send(message);
     }
