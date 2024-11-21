@@ -50,7 +50,7 @@ public class AuthService {
         try {
             emailService.sendEmail(request.getEmail(), subject, body);
         }catch (Exception ex) {
-            log.error("Error while sending email: {}", ex.getMessage());
+            log.info("Error while sending email: {}", ex.getMessage());
         }
         String authenticationToken = jsonWebToken.generateToken(request.getEmail());
         return new AuthResponseBody(authenticationToken, "User registered success!");
@@ -109,6 +109,45 @@ public class AuthService {
             throw new IllegalArgumentException("Email verification token expired.");
         } else {
             throw new IllegalArgumentException("Email verification token failed.");
+        }
+    }
+
+    public void sendPasswordResetToken(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            String passwordResetToken = generateEmailVerificationToken();
+            String hashedToken = encoder.encode(passwordResetToken);
+            user.get().setPasswordResetToken(hashedToken);
+            user.get().setPasswordResetTokenExpiryDate(LocalDateTime.now().plusMinutes(durationInMinutes));
+            userRepository.save(user.get());
+            String subject = "Password Reset";
+            String body = String.format("""
+                            You requested a password reset.
+                            
+                            Enter this code to reset your password: %s. The code will expire in %s minutes.""",
+                    passwordResetToken, durationInMinutes);
+            try {
+                emailService.sendEmail(email, subject, body);
+            } catch (Exception e) {
+                log.error("Error while sending email: {}", e.getMessage());
+            }
+        } else {
+            throw new IllegalArgumentException("User not found.");
+        }
+    }
+
+    public void resetPassword(String email, String newPassword, String token) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent() && encoder.matches(token, user.get().getPasswordResetToken())
+                && !user.get().getPasswordResetTokenExpiryDate().isBefore(LocalDateTime.now())) {
+            user.get().setPasswordResetToken(null);
+            user.get().setPasswordResetTokenExpiryDate(null);
+            user.get().setPassword(encoder.encode(newPassword));
+            userRepository.save(user.get());
+        } else if (user.isPresent() && encoder.matches(token, user.get().getPasswordResetToken()) && user.get().getPasswordResetTokenExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Password reset token expired.");
+        } else {
+            throw new IllegalArgumentException("Password reset token failed.");
         }
     }
 

@@ -3,6 +3,8 @@ package com.almousleck.controller;
 import com.almousleck.dto.AuthRequestBody;
 import com.almousleck.dto.AuthResponseBody;
 import com.almousleck.model.User;
+import com.almousleck.repository.UserRepository;
+import com.almousleck.security.Encoder;
 import com.almousleck.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +12,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1/authentication")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final UserRepository userRepository;
+    private final Encoder encoder;
 
     @PostMapping("/register")
     public AuthResponseBody register(@Valid @RequestBody AuthRequestBody request) {
@@ -38,6 +45,17 @@ public class AuthController {
         return "Email verification token sent successfully.";
     }
 
+    @PutMapping("/send-password-reset-token")
+    public String sendPasswordResetToken(@RequestParam String email) {
+        authService.sendPasswordResetToken(email);
+        return "Password reset token sent successfully.";
+    }
+
+    @PutMapping("/reset-password")
+    public String resetPassword(@RequestParam String newPassword, @RequestParam String token, @RequestParam String email) {
+        authService.resetPassword(email, newPassword, token);
+        return "Password reset successfully.";
+    }
 
     @PutMapping("/profile/{id}")
     public User updateUserProfile(
