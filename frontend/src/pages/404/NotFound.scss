@@ -1,0 +1,66 @@
+/* src/components/NotFound.css */
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  background-color: #f4f4f4;
+  padding: 20px;
+}
+
+.not-found-container h1 {
+  font-size: 3rem;
+  color: #333;
+}
+
+.not-found-container p {
+  font-size: 1.25rem;
+  color: #666;
+}
+
+.back-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .not-found-container h1 {
+    font-size: 2.5rem;
+  }
+
+  .not-found-container p {
+    font-size: 1rem;
+  }
+
+  .back-button {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .not-found-container h1 {
+    font-size: 2rem;
+  }
+
+  .not-found-container p {
+    font-size: 0.875rem;
+  }
+
+  .back-button {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+}
