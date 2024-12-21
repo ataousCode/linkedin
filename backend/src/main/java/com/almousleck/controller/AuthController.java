@@ -3,8 +3,6 @@ package com.almousleck.controller;
 import com.almousleck.dto.AuthRequestBody;
 import com.almousleck.dto.AuthResponseBody;
 import com.almousleck.model.User;
-import com.almousleck.repository.UserRepository;
-import com.almousleck.security.Encoder;
 import com.almousleck.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,18 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/v1/authentication")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final UserRepository userRepository;
-    private final Encoder encoder;
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public AuthResponseBody register(@Valid @RequestBody AuthRequestBody request) {
         return authService.register(request);
     }
@@ -33,19 +26,19 @@ public class AuthController {
         return authService.login(request);
     }
 
-    @PutMapping("/validate-email-verification-token")
+    @PutMapping("/email-verification")
     public String verifyEmail(@RequestParam String token, @RequestAttribute("authenticatedUser") User user) {
         authService.validateEmailVerificationToken(token, user.getEmail());
         return "Email verification successful";
     }
 
-    @GetMapping("/send-email-verification-token")
+    @GetMapping("/send-email-verification")
     public String sendEmailVerificationToken(@RequestAttribute("authenticatedUser") User user) {
         authService.sendEmailVerificationToken(user.getEmail());
         return "Email verification token sent successfully.";
     }
 
-    @PutMapping("/send-password-reset-token")
+    @PutMapping("/send-password-reset")
     public String sendPasswordResetToken(@RequestParam String email) {
         authService.sendPasswordResetToken(email);
         return "Password reset token sent successfully.";

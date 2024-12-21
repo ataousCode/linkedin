@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import classes from "./Layout.module.scss";
 
-function Layout({ children }: { children: ReactNode }) {
+function Layout({ children, className }: { children: ReactNode, className?: string }) {
   return (
     <div className={classes.root}>
       <header className={classes.container}>
