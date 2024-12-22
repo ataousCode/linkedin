@@ -1,8 +1,20 @@
 package com.almousleck.dto;
 
-import lombok.Data;
-
-@Data
 public class CommentDto {
     private String content;
+
+    public CommentDto(String content) {
+        this.content = content;
+    }
+
+    public CommentDto() {
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }

@@ -1,14 +1,19 @@
 package com.almousleck.dto;
 
-import lombok.Data;
-
-@Data
 public class AuthResponseBody {
-    private String token;
-    private String message;
+    private final String token;
+    private final String message;
 
     public AuthResponseBody(String token, String message) {
         this.token = token;
         this.message = message;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

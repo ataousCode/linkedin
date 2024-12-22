@@ -9,8 +9,6 @@ import com.almousleck.security.JsonWebToken;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -18,8 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
+
 public class AuthService {
     private final UserRepository userRepository;
     private final EmailService emailService;
@@ -29,6 +26,13 @@ public class AuthService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    public AuthService(UserRepository userRepository, EmailService emailService, JsonWebToken jsonWebToken, Encoder encoder) {
+        this.userRepository = userRepository;
+        this.emailService = emailService;
+        this.jsonWebToken = jsonWebToken;
+        this.encoder = encoder;
+    }
 
 
     public AuthResponseBody register(AuthRequestBody request) {
@@ -50,7 +54,7 @@ public class AuthService {
         try {
             emailService.sendEmail(request.getEmail(), subject, body);
         }catch (Exception ex) {
-            log.info("Error while sending email: {}", ex.getMessage());
+            throw new RuntimeException("Error while sending email: " + ex.getMessage());
         }
         String authenticationToken = jsonWebToken.generateToken(request.getEmail());
         return new AuthResponseBody(authenticationToken, "User registered success!");
@@ -89,7 +93,8 @@ public class AuthService {
             try {
                 emailService.sendEmail(email, subject, body);
             }catch (Exception ex) {
-                log.info("Error while sending email: {}", ex.getMessage());
+                throw new RuntimeException("Error while sending email: " + ex.getMessage());
+
             }
         } else {
             throw new RuntimeException("User not found or already verified");
@@ -128,8 +133,8 @@ public class AuthService {
                     passwordResetToken, durationInMinutes);
             try {
                 emailService.sendEmail(email, subject, body);
-            } catch (Exception e) {
-                log.error("Error while sending email: {}", e.getMessage());
+            } catch (Exception ex) {
+                throw new RuntimeException("Error while sending email: " + ex.getMessage());
             }
         } else {
             throw new IllegalArgumentException("User not found.");

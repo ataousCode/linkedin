@@ -5,16 +5,18 @@ import com.almousleck.dto.AuthResponseBody;
 import com.almousleck.model.User;
 import com.almousleck.service.AuthService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/authentication")
-@RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/signup")
     public AuthResponseBody register(@Valid @RequestBody AuthRequestBody request) {
