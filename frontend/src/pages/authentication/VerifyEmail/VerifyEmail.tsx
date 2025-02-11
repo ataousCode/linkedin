@@ -1,10 +1,9 @@
 import { useState } from "react";
 import classes from "./VerifyEmail.module.scss";
 import { useNavigate } from "react-router-dom";
-import Layout from "../../component/Layout/Layout";
-import Box from "../../component/Box/Box";
-import Input from "../../component/Input/Input";
-import Button from "../../component/Button/Button";
+import Input from "../../../component/Input/Input";
+import Button from "../../../component/Button/Button";
+import Box from "../../../component/Box/Box";
 function VerifyEmail() {
   const [errorMessage, setErrorMessage] = useState("");
   const [message, setMessage] = useState("");
@@ -73,7 +72,7 @@ function VerifyEmail() {
   };
 
   return (
-    <Layout className={classes.root}>
+    <div className={classes.root}>
       <Box>
         <h1>Verify your email</h1>
         <form
@@ -113,7 +112,7 @@ function VerifyEmail() {
           </Button>
         </form>
       </Box>
-    </Layout>
+    </div>
   );
 }
 

@@ -1,10 +1,9 @@
 import { useState } from "react";
 import classes from "./ResetPassword.module.scss";
 import { useNavigate } from "react-router-dom";
-import Layout from "../../component/Layout/Layout";
-import Box from "../../component/Box/Box";
-import Input from "../../component/Input/Input";
-import Button from "../../component/Button/Button";
+import Box from "../../../component/Box/Box";
+import Input from "../../../component/Input/Input";
+import Button from "../../../component/Button/Button";
 function ResetPassword() {
   const [emailSent, setEmailSent] = useState(false);
   const [email, setEmail] = useState("");
@@ -67,7 +66,7 @@ function ResetPassword() {
   };
 
   return (
-    <Layout className={classes.root}>
+    <div className={classes.root}>
       <Box>
         <h1>Reset Password</h1>
         {!emailSent ? (
@@ -146,7 +145,7 @@ function ResetPassword() {
           </form>
         )}
       </Box>
-    </Layout>
+    </div>
   );
 }
 

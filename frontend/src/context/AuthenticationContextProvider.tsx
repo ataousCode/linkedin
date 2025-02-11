@@ -1,17 +1,31 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useLocation, Navigate, Outlet } from "react-router-dom";
 import Loader from "../component/Loader/Loader";
 
-
-interface User {
+export interface IUser {
   id: string;
   email: string;
   name: string;
   emailVerified: boolean;
+  profilePicture?: string;
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  position?: string;
+  location?: string;
+  profileComplete?: boolean;
 }
 
 interface AuthenticationContextType {
-  user: User | null;
+  user: IUser | null;
+  setUser: Dispatch<SetStateAction<IUser | null>>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   signup: (email: string, password: string) => Promise<void>;
@@ -27,13 +41,13 @@ export function useAuthentication() {
 
 export function AuthenticationContextProvider() {
   const location = useLocation();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const isOnAuthPage =
-    location.pathname === "/login" ||
-    location.pathname === "/signup" ||
-    location.pathname === "/request-password-reset";
+    location.pathname === "/authentication/login" ||
+    location.pathname === "/authentication/signup" ||
+    location.pathname === "/authentication/request-password-reset";
 
   const login = async (email: string, password: string) => {
     const response = await fetch(
@@ -115,10 +129,48 @@ export function AuthenticationContextProvider() {
   }
 
   if (!isLoading && !user && !isOnAuthPage) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/authentication/login" />;
   }
 
-  if (user && user.emailVerified && isOnAuthPage) {
+  if (
+    user &&
+    !user.emailVerified &&
+    location.pathname !== "/authentication/verify-email"
+  ) {
+    return <Navigate to="/authentication/verify-email" />;
+  }
+
+  
+  if (
+    user &&
+    user.emailVerified &&
+    location.pathname == "/authentication/verify-email"
+  ) { 
+    return <Navigate to="/" />;
+  }
+
+  //!
+
+  if (
+    user &&
+    user.emailVerified &&
+    !user.profileComplete &&
+    !location.pathname.includes("/authentication/profile")
+  ) {
+    return <Navigate to={`/authentication/profile/${user.id}`} />;
+  }
+
+  if (
+    user &&
+    user.emailVerified &&
+    user.profileComplete &&
+    location.pathname.includes("/authentication/profile")
+  ) {
+    return <Navigate to="/" />;
+  }
+
+  if (user && isOnAuthPage) {
+    //user.emailVerified &&
     return <Navigate to="/" />;
   }
 
@@ -129,9 +181,9 @@ export function AuthenticationContextProvider() {
         login,
         logout,
         signup,
+        setUser,
       }}
     >
-      {user && !user.emailVerified ? <Navigate to="/verify-email" /> : null}
       <Outlet />
     </AuthenticationContext.Provider>
   );

@@ -1,12 +1,11 @@
 import { FormEvent, useState } from "react";
-import Box from "../../component/Box/Box";
-import Button from "../../component/Button/Button";
-import Input from "../../component/Input/Input";
-import Layout from "../../component/Layout/Layout";
 import classes from "./Login.module.scss";
-import Seperator from "../../component/Seperator/Seperator";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuthentication } from "../../context/AuthenticationContextProvider.tsx";
+import { useAuthentication } from "../../../context/AuthenticationContextProvider";
+import Box from "../../../component/Box/Box";
+import Input from "../../../component/Input/Input";
+import Button from "../../../component/Button/Button";
+import Seperator from "../../../component/Seperator/Seperator";
 
 function Login() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -37,7 +36,7 @@ function Login() {
   };
 
   return (
-    <Layout>
+    <div>
       <Box>
         <h1>Sign In</h1>
         <p>Stay updated on your professional world.</p>
@@ -58,14 +57,14 @@ function Login() {
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "..." : "Sign in"}
           </Button>
-          <Link to="/request-password-reset">Forgot password?</Link>
+          <Link to="/authentication/request-password-reset">Forgot password?</Link>
         </form>
         <Seperator>Or</Seperator>
         <div className={classes.register}>
-          New to LinkedIn? <Link to="/signup">Join now</Link>
+          New to LinkedIn? <Link to="/authentication/signup">Join now</Link>
         </div>
       </Box>
-    </Layout>
+    </div>
   );
 }
 

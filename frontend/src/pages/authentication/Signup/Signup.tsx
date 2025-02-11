@@ -1,12 +1,11 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Box from "../../component/Box/Box.tsx";
-import Input from "../../component/Input/Input.tsx";
-import Layout from "../../component/Layout/Layout.tsx";
-import Button from "../../component/Button/Button.tsx";
-import Seperator from "../../component/Seperator/Seperator.tsx";
-import { useAuthentication } from "../../context/AuthenticationContextProvider.tsx";
 import classes from "./Signup.module.scss";
+import { useAuthentication } from "../../../context/AuthenticationContextProvider";
+import Box from "../../../component/Box/Box";
+import Input from "../../../component/Input/Input";
+import Button from "../../../component/Button/Button";
+import Seperator from "../../../component/Seperator/Seperator";
 
 function Registration() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -34,7 +33,7 @@ function Registration() {
   };
 
   return (
-    <Layout className={classes.root}>
+    <div className={classes.root}>
       <Box>
         <h1>Sign Up to continue</h1>
         <p>Make the most of your professional life.</p>
@@ -65,10 +64,10 @@ function Registration() {
         </form>
         <Seperator>Or</Seperator>
         <div className={classes.register}>
-          Already on LinkedIn? <Link to="/login">Sign in</Link>
+          Already on LinkedIn? <Link to="/authentication/login">Sign in</Link>
         </div>
       </Box>
-    </Layout>
+    </div>
   );
 }
 
