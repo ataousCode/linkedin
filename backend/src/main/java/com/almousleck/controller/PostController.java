@@ -58,7 +58,7 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{postId}/like")
+    @PutMapping("/{postId}/likes")
     public ResponseEntity<Post> likePost(@PathVariable Long postId,
                                          @RequestAttribute("authenticatedUser") User user) {
         Post post = postService.likePost(postId, user.getId());
